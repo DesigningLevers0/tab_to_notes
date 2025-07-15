@@ -154,7 +154,7 @@ def proces_doc(doc, settings):
         if settings['tuning_separator'] in line:
             noteName = line.split(settings['tuning_separator'])[0].strip()
             if noteName.upper() in NOTES_SHARPS.keys() \
-            or noteName.upper() in [x for x in NOTES_FLATS.keys().upper()]:
+            or noteName.upper() in [x.upper() for x in NOTES_FLATS.keys()]:
                 tab = True
                 string_nr = string_nr + 1
                 if settings['write_octaves']:
@@ -170,12 +170,14 @@ def proces_doc(doc, settings):
                 tabdict = OrderedDict()
         else:
             # we just return all other lines
-            if tab:
+            if tab \
+            and len(line.strip()) > 0:      # skip empty lines
                 resultdoc.extend(proces_tabdict(tabdict, settings))
                 tab = False
                 string_nr = 0
                 tabdict = OrderedDict()
-            resultdoc.append(line)
+            else:
+                resultdoc.append(line)
             
     return resultdoc
 
