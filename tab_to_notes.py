@@ -3,9 +3,17 @@
 
 import argparse
 import math
+import pathlib
 import re
 from collections import OrderedDict
 
+
+TRANSPOSING_TABLE = {
+        'Bb': 2,
+        'Eb': 9,
+        'F': 7,
+        'A': 3
+}
 
 NOTES_SHARPS = {"C" : 0, "C#" : 1,  "D": 2, "D#" : 3, "E": 4, "F": 5, 
    "F#" : 6, "G":  7, "G#" : 8, "A": 9, "A#" : 10, "B": 11}
@@ -71,8 +79,6 @@ def GetNote(stringNote, fretNum, settings):
         if not ('#' in name or 'b' in name):
             name = name + ' '
 
-    #print('Calculated %s from string %s and fret %s' % (
-    #       name, stringNote, fretNum))
     return name
 
 def extract_notes(tabdict, settings):
@@ -91,15 +97,6 @@ def extract_notes(tabdict, settings):
                                         line, notedict[stringNote])
 
     return (notedict, line_length)
-
-
-def read_file(file_name):
-    """
-    Reads the tab file as a series of lines
-    """
-    
-    with open(file_name) as f:
-        return f.readlines()
 
 def format_notedict(notedict, line_length, settings):
     """
@@ -183,6 +180,7 @@ def proces_doc(doc, settings):
     return resultdoc
 
 if __name__ == "__main__":
+    
     parser = argparse.ArgumentParser(
         description = "Converts text files containing ascii tabs as "
                       "used by guitar players and the like to "
@@ -192,7 +190,8 @@ if __name__ == "__main__":
         "--tuning_separator", 
         default = '|',
         help = "The symbol used to separate the note name indicating " 
-               "how the string is tuned from the rest of the tab line." 
+               "how the string is tuned from the rest of the tab line. "
+               "Default |."
     )
     parser.add_argument(    
         "-u", 
@@ -251,10 +250,6 @@ if __name__ == "__main__":
                "information in the -s.. options is ingnored.",
         action="store_true"
     )
-    parser.add_argument(
-        "tab_file",
-        help = "A file containing ascii tab."
-    )
     parser.add_argument(    
         "-o", 
         "--omit_techniques", 
@@ -262,22 +257,24 @@ if __name__ == "__main__":
         action="store_true"
     )
     parser.add_argument(
+        "tab_file",
+        type = pathlib.Path, 
+        help = "A file containing ascii tab."
+    )
+    parser.add_argument(
         "result",
+        type = pathlib.Path, 
         help = "A file to write the result as ascii text."
     )
     args = parser.parse_args()
     
-    transposing_table = {
-        'Bb': 2,
-        'Eb': 9,
-        'F': 7,
-        'A': 3
-    }
-    
-    if args.transpose in transposing_table.keys():
-        transpose = transposing_table[args.transpose]
-    else:
+    if args.transpose in TRANSPOSING_TABLE.keys():
+        transpose = TRANSPOSING_TABLE[args.transpose]
+    elif type(args.transpose) == str and args.transpose.isnumeric():
         transpose = int(args.transpose)
+    else:
+        transpose = args.transpose
+
     
     settings = {
         "chord_start":      '[',
@@ -297,7 +294,10 @@ if __name__ == "__main__":
                                 5: args.s5,
                                 6: args.s6 }
     }
-    doc = read_file(args.tab_file)
+    
+    with open(args.tab_file) as f:
+        doc = f.readlines()
+    
     result = proces_doc(doc, settings)
     
     with open(args.result,'w') as f:
