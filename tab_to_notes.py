@@ -9,10 +9,10 @@ from collections import OrderedDict
 
 
 TRANSPOSING_TABLE = {
-        'Bb': 2,
-        'Eb': 9,
-        'F': 7,
-        'A': 3
+        'Bb': -2,
+        'Eb': 3,
+        'F': 5,
+        'A': 9
 }
 
 NOTES_SHARPS = {"C" : 0, "C#" : 1,  "D": 2, "D#" : 3, "E": 4, "F": 5, 
@@ -170,14 +170,12 @@ def proces_doc(doc, settings):
                 tabdict = OrderedDict()
         else:
             # we just return all other lines
-            if tab \
-            and len(line.strip()) > 0:      # skip empty lines
+            if tab:
                 resultdoc.extend(proces_tabdict(tabdict, settings))
                 tab = False
                 string_nr = 0
                 tabdict = OrderedDict()
-            else:
-                resultdoc.append(line)
+            resultdoc.append(line)
             
     return resultdoc
 
