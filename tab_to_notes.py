@@ -9,10 +9,10 @@ from collections import OrderedDict
 
 
 TRANSPOSING_TABLE = {
-        'Bb': -2,
-        'Eb': 3,
-        'F': 5,
-        'A': 9
+        'Bb': 2,
+        'Eb': 9,
+        'F': 7,
+        'A': 3
 }
 
 NOTES_SHARPS = {"C" : 0, "C#" : 1,  "D": 2, "D#" : 3, "E": 4, "F": 5, 
